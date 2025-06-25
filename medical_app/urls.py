@@ -36,4 +36,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('api/livekit/', include('livekit_app.urls')),
+    path('api/notifications/', include('notifications.urls')),
 ]
