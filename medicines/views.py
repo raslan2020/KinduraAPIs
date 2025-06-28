@@ -42,7 +42,7 @@ class MedicineViewSet(viewsets.ViewSet):
                     status.HTTP_201_CREATED
                 )
             else:
-                return error_response(str(serializer.errors), status.HTTP_400_BAD_REQUEST)
+                return error_response(serializer.errors, status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return error_response(str(e), status.HTTP_500_INTERNAL_SERVER_ERROR)
     
@@ -61,7 +61,7 @@ class MedicineViewSet(viewsets.ViewSet):
     
     def update(self, request, pk=None):
         """
-        Update a specific medicine
+        Update a medicine
         """
         try:
             medicine = self.get_queryset().get(pk=pk)
@@ -73,7 +73,7 @@ class MedicineViewSet(viewsets.ViewSet):
                     "Medicine updated successfully"
                 )
             else:
-                return error_response(str(serializer.errors), status.HTTP_400_BAD_REQUEST)
+                return error_response(serializer.errors, status.HTTP_400_BAD_REQUEST)
         except Medicine.DoesNotExist:
             return error_response("Medicine not found", status.HTTP_404_NOT_FOUND)
         except Exception as e:

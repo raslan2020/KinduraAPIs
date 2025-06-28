@@ -50,7 +50,7 @@ class HealthProfileViewSet(viewsets.ViewSet):
                         status.HTTP_201_CREATED
                     )
                 else:
-                    return error_response(str(serializer.errors), status.HTTP_400_BAD_REQUEST)
+                    return error_response(serializer.errors, status.HTTP_400_BAD_REQUEST)
             except Exception as e:
                 return error_response(str(e), status.HTTP_500_INTERNAL_SERVER_ERROR)
         
@@ -68,6 +68,6 @@ class HealthProfileViewSet(viewsets.ViewSet):
                         "Health profile updated successfully"
                     )
                 else:
-                    return error_response(str(serializer.errors), status.HTTP_400_BAD_REQUEST)
+                    return error_response(serializer.errors, status.HTTP_400_BAD_REQUEST)
             except Exception as e:
                 return error_response(str(e), status.HTTP_500_INTERNAL_SERVER_ERROR)

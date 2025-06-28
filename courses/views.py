@@ -54,7 +54,7 @@ class CourseViewSet(viewsets.ViewSet):
                     status.HTTP_201_CREATED
                 )
             else:
-                return error_response(str(serializer.errors), status.HTTP_400_BAD_REQUEST)
+                return error_response(serializer.errors, status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return error_response(str(e), status.HTTP_500_INTERNAL_SERVER_ERROR)
     
@@ -73,7 +73,7 @@ class CourseViewSet(viewsets.ViewSet):
     
     def update(self, request, pk=None):
         """
-        Update a specific course
+        Update a course
         """
         try:
             course = self.get_queryset().get(pk=pk)
@@ -85,7 +85,7 @@ class CourseViewSet(viewsets.ViewSet):
                     "Course updated successfully"
                 )
             else:
-                return error_response(str(serializer.errors), status.HTTP_400_BAD_REQUEST)
+                return error_response(serializer.errors, status.HTTP_400_BAD_REQUEST)
         except Course.DoesNotExist:
             return error_response("Course not found", status.HTTP_404_NOT_FOUND)
         except Exception as e:

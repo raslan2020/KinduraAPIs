@@ -39,7 +39,7 @@ class UserViewSet(viewsets.ViewSet):
                 'token': token_serializer.data['token']
             }, "User registered successfully", status.HTTP_201_CREATED)
         else:
-            return error_response(str(serializer.errors), status.HTTP_400_BAD_REQUEST)
+            return error_response(serializer.errors, status.HTTP_400_BAD_REQUEST)
     
     @action(detail=False, methods=['post'], permission_classes=[AllowAny])
     def login(self, request):
@@ -61,7 +61,7 @@ class UserViewSet(viewsets.ViewSet):
                 'token': token_serializer.data['token']
             }, "Login successful")
         else:
-            return error_response(str(serializer.errors), status.HTTP_400_BAD_REQUEST)
+            return error_response(serializer.errors, status.HTTP_400_BAD_REQUEST)
     
     @action(detail=False, methods=['get', 'put'], permission_classes=[IsAuthenticated])
     def profile(self, request):
@@ -78,7 +78,7 @@ class UserViewSet(viewsets.ViewSet):
                 serializer.save()
                 return success_response(serializer.data, "Profile updated successfully")
             else:
-                return error_response(str(serializer.errors), status.HTTP_400_BAD_REQUEST)
+                return error_response(serializer.errors, status.HTTP_400_BAD_REQUEST)
     
     @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
     def logout(self, request):
