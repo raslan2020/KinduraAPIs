@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
 from .models import User, UserToken
+from .models import UserJSON
 from utils.authentication import create_user_token
 
 
@@ -58,7 +59,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'phone_number', 'age', 'gender', 'address', 'terms_and_conditions']
+        fields = ['first_name', 'last_name', 'email', 'phone_number', 'age', 'gender', 'address', 'terms_and_conditions']
         extra_kwargs = {
             'terms_and_conditions': {'required': True}
         }
@@ -75,4 +76,20 @@ class UserTokenSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = UserToken
-        fields = ['token', 'created_at'] 
+        fields = ['token', 'created_at']
+
+
+class UserJSONUploadSerializer(serializers.ModelSerializer):
+    file = serializers.FileField(write_only=True)
+
+    class Meta:
+        model = UserJSON
+        fields = ['id', 'uploaded_at', 'data', 'file']
+        read_only_fields = ['id', 'uploaded_at', 'data']
+
+    def create(self, validated_data):
+        file = validated_data.pop('file')
+        import json
+        data = json.load(file)
+        user = self.context['request'].user
+        return UserJSON.objects.create(user=user, data=data)  # type: ignore[attr-defined] 

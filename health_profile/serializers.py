@@ -60,15 +60,14 @@ class HealthProfileSerializer(serializers.ModelSerializer):
     lifestyle_habits = LifestyleHabitsSerializer(required=False)
     physical_activity = PhysicalActivitySerializer(required=False)
     dietary_habits = DietaryHabitsSerializer(required=False)
-    medical_history = MedicalHistorySerializer(required=False)
-    mental_health = MentalHealthSerializer(required=False)
+    
     
     class Meta:
         model = HealthProfile
         fields = [
             'id', 'created_at', 'updated_at',
             'lifestyle_habits', 'physical_activity', 
-            'dietary_habits', 'medical_history', 'mental_health'
+            'dietary_habits'
         ]
         read_only_fields = ['id', 'created_at', 'updated_at']
     
@@ -76,8 +75,6 @@ class HealthProfileSerializer(serializers.ModelSerializer):
         lifestyle_data = validated_data.pop('lifestyle_habits', None)
         physical_data = validated_data.pop('physical_activity', None)
         dietary_data = validated_data.pop('dietary_habits', None)
-        medical_data = validated_data.pop('medical_history', None)
-        mental_data = validated_data.pop('mental_health', None)
         
         health_profile = HealthProfile.objects.create(**validated_data)
         
@@ -87,10 +84,6 @@ class HealthProfileSerializer(serializers.ModelSerializer):
             PhysicalActivity.objects.create(health_profile=health_profile, **physical_data)
         if dietary_data:
             DietaryHabits.objects.create(health_profile=health_profile, **dietary_data)
-        if medical_data:
-            MedicalHistory.objects.create(health_profile=health_profile, **medical_data)
-        if mental_data:
-            MentalHealth.objects.create(health_profile=health_profile, **mental_data)
         
         return health_profile
     
@@ -98,8 +91,6 @@ class HealthProfileSerializer(serializers.ModelSerializer):
         lifestyle_data = validated_data.pop('lifestyle_habits', None)
         physical_data = validated_data.pop('physical_activity', None)
         dietary_data = validated_data.pop('dietary_habits', None)
-        medical_data = validated_data.pop('medical_history', None)
-        mental_data = validated_data.pop('mental_health', None)
         
         # Update health profile
         for attr, value in validated_data.items():
@@ -122,15 +113,6 @@ class HealthProfileSerializer(serializers.ModelSerializer):
                 health_profile=instance,
                 defaults=dietary_data
             )
-        if medical_data:
-            MedicalHistory.objects.update_or_create(
-                health_profile=instance,
-                defaults=medical_data
-            )
-        if mental_data:
-            MentalHealth.objects.update_or_create(
-                health_profile=instance,
-                defaults=mental_data
-            )
+        
         
         return instance 

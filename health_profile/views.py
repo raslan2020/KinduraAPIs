@@ -57,17 +57,29 @@ class HealthProfileViewSet(viewsets.ViewSet):
         elif request.method == 'PUT':
             try:
                 health_profile = self.get_queryset().first()
-                if not health_profile:
-                    return error_response("Health profile not found", status.HTTP_404_NOT_FOUND)
                 
-                serializer = HealthProfileSerializer(health_profile, data=request.data, partial=True)
-                if serializer.is_valid():
-                    updated_profile = serializer.save()
-                    return success_response(
-                        HealthProfileSerializer(updated_profile).data,
-                        "Health profile updated successfully"
-                    )
+                if health_profile:
+                    # Update existing profile
+                    serializer = HealthProfileSerializer(health_profile, data=request.data, partial=True)
+                    if serializer.is_valid():
+                        updated_profile = serializer.save()
+                        return success_response(
+                            HealthProfileSerializer(updated_profile).data,
+                            "Health profile updated successfully"
+                        )
+                    else:
+                        return error_response(serializer.errors, status.HTTP_400_BAD_REQUEST)
                 else:
-                    return error_response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+                    # Create new profile if it doesn't exist
+                    serializer = HealthProfileSerializer(data=request.data)
+                    if serializer.is_valid():
+                        health_profile = serializer.save(user=request.user)
+                        return success_response(
+                            HealthProfileSerializer(health_profile).data,
+                            "Health profile created successfully",
+                            status.HTTP_201_CREATED
+                        )
+                    else:
+                        return error_response(serializer.errors, status.HTTP_400_BAD_REQUEST)
             except Exception as e:
                 return error_response(str(e), status.HTTP_500_INTERNAL_SERVER_ERROR)

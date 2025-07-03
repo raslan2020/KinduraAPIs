@@ -47,3 +47,15 @@ class UserToken(models.Model):
     
     class Meta:
         db_table = 'user_tokens'
+
+
+class UserJSON(models.Model):
+    """
+    Model to store uploaded JSON data for each user
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='json_uploads')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    data = models.JSONField()
+
+    def __str__(self):
+        return f"JSON upload by {self.user.email} at {self.uploaded_at}"

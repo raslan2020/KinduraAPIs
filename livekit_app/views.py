@@ -9,6 +9,7 @@ from rest_framework import status
 from livekit import api
 import asyncio
 from utils.response_utils import success_response, error_response
+import asyncio
 
 
 @api_view(['POST'])
@@ -21,10 +22,10 @@ def get_token(request):
         data = request.data
         
         # Validate required fields
-        required_fields = ['identity', 'name', 'room', 'user_data']
+        required_fields = ['identity', 'name', 'room', 'course_details']
         if not all(field in data for field in required_fields):
             return error_response(
-                "Missing one or more required fields: identity, name, room, user_data", 
+                "Missing one or more required fields: identity, name, room, course_details", 
                 status.HTTP_400_BAD_REQUEST
             )
 
@@ -34,7 +35,7 @@ def get_token(request):
             os.getenv('LIVEKIT_API_SECRET')
         ).with_identity(data['identity']) \
          .with_name(data['name']) \
-         .with_metadata(json.dumps(data['user_data'])) \
+         .with_metadata(json.dumps(data['course_details'])) \
          .with_grants(api.VideoGrants(
              room_join=True,
              room=data['room']
@@ -58,21 +59,23 @@ def delete_room(request):
             return error_response("Missing room field", status.HTTP_400_BAD_REQUEST)
 
         room_name = data['room']
+        print("this is the room name", room_name)
 
-        # Call the async delete method inside event loop
-        asyncio.run(
-            api.LiveKitAPI(
-                os.getenv('LIVEKIT_URL'), 
-                os.getenv('LIVEKIT_API_KEY'), 
+        async def delete_room_async():
+            await api.LiveKitAPI(
+                os.getenv('LIVEKIT_URL'),
+                os.getenv('LIVEKIT_API_KEY'),
                 os.getenv('LIVEKIT_API_SECRET')
             ).room.delete_room(
                 api.DeleteRoomRequest(room=room_name)
             )
-        )
-        
+
+        asyncio.run(delete_room_async())
+
         return success_response(
             f'Room "{room_name}" deleted successfully'
         )
+            
 
     except Exception as e:
         return error_response(str(e), status.HTTP_500_INTERNAL_SERVER_ERROR) 

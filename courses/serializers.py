@@ -36,10 +36,12 @@ class CourseWithMedicinesAndSchedulesSerializer(serializers.ModelSerializer):
             'doctor_instructions', 'medicines_and_schedules'
         ]
     
+
+    # Start date cannot be in the past then it should select the current date
     def validate_start_date(self, value):
         from django.utils import timezone
         if value < timezone.now().date():
-            raise serializers.ValidationError("Start date cannot be in the past")
+            value = timezone.now().date()
         return value
     
     def validate_duration(self, value):

@@ -7,7 +7,7 @@ from django.contrib.auth import authenticate
 from .models import User
 from .serializers import (
     UserSignupSerializer, UserLoginSerializer, 
-    UserProfileSerializer, UserTokenSerializer
+    UserProfileSerializer, UserTokenSerializer, UserJSONUploadSerializer
 )
 from utils.response_utils import success_response, error_response
 from utils.authentication import create_user_token, SimpleTokenAuthentication
@@ -92,3 +92,14 @@ class UserViewSet(viewsets.ViewSet):
             UserToken.objects.filter(token=token).update(is_active=False)
         
         return success_response(message="Logout successful")
+
+    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
+    def upload_json(self, request):
+        """
+        Upload a JSON file and store its content for the authenticated user
+        """
+        serializer = UserJSONUploadSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return success_response(serializer.data, "JSON uploaded successfully", status.HTTP_201_CREATED)
+        return error_response(serializer.errors, status.HTTP_400_BAD_REQUEST)
