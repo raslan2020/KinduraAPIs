@@ -294,13 +294,17 @@ class CourseViewSet(viewsets.ViewSet):
         # Define time slots: each slot is 3 hours
         time_slots = [
             (0, 3), (3, 6), (6, 9), (9, 12),
-            (12, 15), (15, 18), (18, 21), (21, 24)
+            (12, 15), (15, 18), (18, 21), (21, 0)  # Changed 24 to 0
         ]
         
         # Find which slot the hour falls into
         for start_hour, end_hour in time_slots:
-            if start_hour <= hour < end_hour:
-                return time(start_hour, 0, 0), time(end_hour, 0, 0)
+            if start_hour <= hour < end_hour or (start_hour == 21 and hour >= 21):
+                # Special case for 21-24 hour slot
+                if end_hour == 0:
+                    return time(start_hour, 0, 0), time(0, 0, 0)
+                else:
+                    return time(start_hour, 0, 0), time(end_hour, 0, 0)
         
         # Fallback (shouldn't happen with valid 24-hour format)
         return time(0, 0, 0), time(3, 0, 0)
@@ -326,6 +330,7 @@ class CourseViewSet(viewsets.ViewSet):
             
             # Get time parameter from query params
             time_param = request.query_params.get('time')
+            print("this is the time param", time_param)
             
             if time_param:
                 try:

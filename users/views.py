@@ -11,6 +11,7 @@ from .serializers import (
 )
 from utils.response_utils import success_response, error_response
 from utils.authentication import create_user_token, SimpleTokenAuthentication
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 class UserViewSet(viewsets.ViewSet):
@@ -93,7 +94,7 @@ class UserViewSet(viewsets.ViewSet):
         
         return success_response(message="Logout successful")
 
-    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
+    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated], parser_classes=[MultiPartParser, FormParser])
     def upload_json(self, request):
         """
         Upload a JSON file and store its content for the authenticated user

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, UserToken
+from .models import User, UserToken, UserJSON
 
 
 @admin.register(User)
@@ -27,6 +27,12 @@ class CustomUserAdmin(UserAdmin):
         }),
     )
 
+
+@admin.register(UserJSON)
+class UserJSONAdmin(admin.ModelAdmin):
+    list_display = ['user', 'uploaded_at']
+    search_fields = ['user__email']
+    readonly_fields = ['uploaded_at', 'data']
 
 @admin.register(UserToken)
 class UserTokenAdmin(admin.ModelAdmin):

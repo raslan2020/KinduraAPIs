@@ -75,21 +75,3 @@ class DietaryHabitsAdmin(admin.ModelAdmin):
     """
     list_display = ['health_profile', 'diet_type', 'daily_water_intake']
     list_filter = ['diet_type']
-
-
-@admin.register(MedicalHistory)
-class MedicalHistoryAdmin(admin.ModelAdmin):
-    """
-    Admin for MedicalHistory model
-    """
-    list_display = ['health_profile', 'taking_medications', 'has_allergies']
-    list_filter = ['taking_medications', 'has_allergies']
-
-
-@admin.register(MentalHealth)
-class MentalHealthAdmin(admin.ModelAdmin):
-    """
-    Admin for MentalHealth model
-    """
-    list_display = ['health_profile', 'experienced_anxiety_depression', 'seeing_therapist']
-    list_filter = ['experienced_anxiety_depression', 'seeing_therapist']

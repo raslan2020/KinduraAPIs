@@ -405,6 +405,32 @@ def test_logout():
         print("❌ Logout failed!")
         return False
 
+def test_upload_json():
+    """Test uploading a JSON file for the user"""
+    print("Testing Upload JSON File...")
+    json_path = "testing_purpose/test_upload.json"
+    try:
+        with open(json_path, 'rb') as f:
+            files = {'file': f}
+            headers = {}
+            if auth_token:
+                headers['Authorization'] = auth_token if auth_token.startswith('Token') else f'Token {auth_token}'
+            response = requests.post(
+                f"{BASE_URL}/users/upload_json/",
+                headers=headers,
+                files=files
+            )
+            print_response(response, "Upload JSON File")
+            if response.status_code == 201:
+                print("✅ Upload JSON successful!")
+                return True
+            else:
+                print("❌ Upload JSON failed!")
+                return False
+    except FileNotFoundError:
+        print(f"❌ Test JSON file not found at {json_path}")
+        return False
+
 def main():
     """Main function to run all tests"""
     print("🚀 Starting Medical App API Tests")
@@ -460,6 +486,11 @@ def main():
     print("\n📋 LOGOUT TEST")
     print("-" * 30)
     test_results.append(("User Logout", test_logout()))
+
+    # Upload JSON Test
+    print("\n📋 UPLOAD JSON TEST")
+    print("-" * 30)
+    test_results.append(("Upload JSON", test_upload_json()))
     
     # Summary
     print("\n" + "="*60)
