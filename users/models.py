@@ -53,9 +53,19 @@ class UserJSON(models.Model):
     """
     Model to store uploaded JSON data for each user
     """
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('processing', 'Processing'),
+        ('completed', 'Completed'),
+        ('failed', 'Failed'),
+    ]
+    
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='json_uploads')
     uploaded_at = models.DateTimeField(auto_now_add=True)
     data = models.JSONField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    summarize_patient_report = models.CharField(null=True, blank=True) 
+    error_message = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"JSON upload by {self.user.email} at {self.uploaded_at}"
+        return f"JSON upload by {self.user.email} at {self.uploaded_at} (Status: {self.status})"

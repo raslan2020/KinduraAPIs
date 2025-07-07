@@ -12,6 +12,7 @@ from .serializers import (
 from utils.response_utils import success_response, error_response
 from utils.authentication import create_user_token, SimpleTokenAuthentication
 from rest_framework.parsers import MultiPartParser, FormParser
+from .tasks import start_background_processing
 
 
 class UserViewSet(viewsets.ViewSet):
@@ -98,9 +99,69 @@ class UserViewSet(viewsets.ViewSet):
     def upload_json(self, request):
         """
         Upload a JSON file and store its content for the authenticated user
+        Processing happens asynchronously in the background
         """
         serializer = UserJSONUploadSerializer(data=request.data, context={'request': request})
         if serializer.is_valid():
-            serializer.save()
-            return success_response(serializer.data, "JSON uploaded successfully", status.HTTP_201_CREATED)
+            json_upload = serializer.save()
+            
+            # Start background processing
+            start_background_processing(json_upload.id)
+            
+            return success_response({
+                'id': json_upload.id,
+                'status': json_upload.status,
+                'uploaded_at': json_upload.uploaded_at,
+                'message': 'JSON uploaded successfully. Processing started in background.'
+            }, "JSON uploaded successfully", status.HTTP_201_CREATED)
         return error_response(serializer.errors, status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True, methods=['get'], permission_classes=[IsAuthenticated])
+    def json_status(self, request, pk=None):
+        """
+        Check the processing status of a JSON upload
+        """
+        try:
+            from .models import UserJSON
+            json_upload = UserJSON.objects.get(id=pk, user=request.user)
+            
+            response_data = {
+                'id': json_upload.id,
+                'status': json_upload.status,
+                'uploaded_at': json_upload.uploaded_at,
+            }
+            
+            if json_upload.status == 'completed':
+                response_data['summarize_patient_report'] = json_upload.summarize_patient_report
+            elif json_upload.status == 'failed':
+                response_data['error_message'] = json_upload.error_message
+            
+            return success_response(response_data)
+            
+        except UserJSON.DoesNotExist:
+            return error_response("JSON upload not found", status.HTTP_404_NOT_FOUND)
+
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
+    def json_uploads(self, request):
+        """
+        Get all JSON uploads for the authenticated user
+        """
+        from .models import UserJSON
+        json_uploads = UserJSON.objects.filter(user=request.user).order_by('-uploaded_at')
+        
+        uploads_data = []
+        for upload in json_uploads:
+            upload_data = {
+                'id': upload.id,
+                'status': upload.status,
+                'uploaded_at': upload.uploaded_at,
+            }
+            
+            if upload.status == 'completed':
+                upload_data['summarize_patient_report'] = upload.summarize_patient_report
+            elif upload.status == 'failed':
+                upload_data['error_message'] = upload.error_message
+                
+            uploads_data.append(upload_data)
+        
+        return success_response(uploads_data)

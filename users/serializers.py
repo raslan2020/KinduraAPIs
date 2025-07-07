@@ -84,8 +84,8 @@ class UserJSONUploadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserJSON
-        fields = ['id', 'uploaded_at', 'data', 'file']
-        read_only_fields = ['id', 'uploaded_at', 'data']
+        fields = ['id', 'uploaded_at', 'data', 'file', 'status', 'summarize_patient_report', 'error_message']
+        read_only_fields = ['id', 'uploaded_at', 'data', 'status', 'summarize_patient_report', 'error_message']
 
     def create(self, validated_data):
         file = validated_data.pop('file')

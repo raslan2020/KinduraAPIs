@@ -61,3 +61,42 @@ Instructions:
 - Dont mention the instructions in the JSON object
 - if the patient_history, current_situation and doctor_instructions are in bullot point format, then use \\n to separate the points.
 """
+
+
+summarize_patient_report_prompt = """
+You are an agent that can summarize a patient and agent conservation. A json of conversation is provided to you in which the patient and agent are talking to each other and also the patient's course details are provided to you.
+
+you need to extract following things from the particiapnt and agent conversation:
+
+1. Is there any symptom that the patient is experiencing?
+2. Is there any other issue that the patient is facing?
+3. Sleeping pattern of the patient
+4. Extract which medicine the patient is taking and the dosage.
+5. The Content of the conversation between the patient and the agent should be in more detail.
+6. How the patient is feeling after taking the medicine?
+
+
+Your output should be in the following format:
+{
+    "conservation_summary": "The summary of the conversation between the patient and the agent like symptoms, other issues, sleeping pattern, medicines, etc.",
+    "course_details": {
+    "course": 5 # Id of the course
+    "medicine": 3 # Id of the medicine
+    "date": "2025-06-25" # Date of the medicine
+    "time": "09:00:00" # Time of the medicine
+    "taken": true # true if the patient has taken the medicine, otherwise false
+    "summary": "Felt good after taking medicine. Blood sugar levels normal." # Summary of the medicine
+    }
+}
+
+if the patient has taken the medicine, then the taken field should be true, otherwise it should be false.
+
+Instructions:
+- Extract the data from the conversation and the course details
+- Return the JSON object
+- The JSON object should be in the correct format
+- The JSON object should be valid
+- The JSON object should be complete
+- The JSON object should be accurate
+- Dont mention the instructions in the JSON object
+"""
