@@ -129,6 +129,7 @@ class UserViewSet(viewsets.ViewSet):
                 'id': json_upload.id,
                 'status': json_upload.status,
                 'uploaded_at': json_upload.uploaded_at,
+                'summarize_patient_report': json_upload.summarize_patient_report,
             }
             
             if json_upload.status == 'completed':
@@ -144,9 +145,31 @@ class UserViewSet(viewsets.ViewSet):
     @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
     def json_uploads(self, request):
         """
-        Get all JSON uploads for the authenticated user
+        Get all JSON uploads for the authenticated user or a specific upload by ID
         """
         from .models import UserJSON
+        upload_id = request.query_params.get('id')
+
+        if upload_id:
+            try:
+                upload = UserJSON.objects.get(id=upload_id, user=request.user)
+                upload_data = {
+                    'id': upload.id,
+                    'status': upload.status,
+                    'uploaded_at': upload.uploaded_at,
+                    'summarize_patient_report': upload.summarize_patient_report,
+                    'conservation': upload.data
+                }
+
+                if upload.status == 'completed':
+                    upload_data['summarize_patient_report'] = upload.summarize_patient_report
+                elif upload.status == 'failed':
+                    upload_data['error_message'] = upload.error_message
+
+                return success_response(upload_data)
+            except UserJSON.DoesNotExist:
+                return error_response("Upload with given ID not found.", status=404)
+
         json_uploads = UserJSON.objects.filter(user=request.user).order_by('-uploaded_at')
         
         uploads_data = []
@@ -155,13 +178,16 @@ class UserViewSet(viewsets.ViewSet):
                 'id': upload.id,
                 'status': upload.status,
                 'uploaded_at': upload.uploaded_at,
+                'summarize_patient_report': upload.summarize_patient_report,
+                'conservation': upload.data
             }
             
             if upload.status == 'completed':
                 upload_data['summarize_patient_report'] = upload.summarize_patient_report
             elif upload.status == 'failed':
                 upload_data['error_message'] = upload.error_message
-                
+
             uploads_data.append(upload_data)
-        
+
         return success_response(uploads_data)
+

@@ -11,6 +11,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True, validators=[EmailValidator()])
     phone_number = models.CharField(max_length=15, blank=True, null=True)
     age = models.PositiveIntegerField(blank=True, null=True)
+    language = models.CharField(default='en')
     GENDER_CHOICES = [
         ('M', 'Male'),
         ('F', 'Female'),
