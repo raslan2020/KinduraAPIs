@@ -31,14 +31,69 @@ class CourseViewSet(viewsets.ViewSet):
     
     def list(self, request):
         """
-        List all courses for the authenticated user
+        List all courses for the authenticated user with medicines and schedules
         """
         try:
-            courses = self.get_queryset()
-            serializer = CourseSerializer(courses, many=True)
-            return success_response(serializer.data)
+            courses = self.get_queryset().order_by('-created_at')
+            final_response = []
+
+            for course in courses:
+                # Get all schedules with related medicines
+                schedules = CourseMedicineSchedule.objects.filter(
+                    course=course,
+                    is_active=True
+                ).select_related('medicine')
+
+                # Prepare per-course response
+                course_data = {
+                    'course': {
+                        'id': course.id,
+                        'name': course.name,
+                        'start_date': course.start_date,
+                        'duration': course.duration,
+                        'patient_history': course.patient_history,
+                        'current_situation': course.current_situation,
+                        'doctor_instructions': course.doctor_instructions,
+                        'created_at': course.created_at,
+                        'is_active': course.is_active
+                    },
+                    'medicines': [],
+                    'schedules': []
+                }
+
+                # Unique medicines collection
+                medicines_set = set()
+                for schedule in schedules:
+                    medicine = schedule.medicine
+                    medicines_set.add(medicine)
+
+                    schedule_data = {
+                        'id': schedule.id,
+                        'medicine_id': medicine.id,
+                        'medicine_name': medicine.name,
+                        'time': schedule.time,
+                        'dosage': schedule.dosage,
+                        'is_active': schedule.is_active
+                    }
+                    course_data['schedules'].append(schedule_data)
+
+                # Add unique medicines
+                for medicine in medicines_set:
+                    medicine_data = {
+                        'id': medicine.id,
+                        'name': medicine.name,
+                        'description': medicine.description,
+                        'is_active': medicine.is_active
+                    }
+                    course_data['medicines'].append(medicine_data)
+
+                final_response.append(course_data)
+
+            return success_response(final_response)
+
         except Exception as e:
             return error_response(str(e), status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     
     def create(self, request):
         """
