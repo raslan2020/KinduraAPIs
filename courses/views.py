@@ -174,7 +174,6 @@ class CourseViewSet(viewsets.ViewSet):
 
             # Now pass the saved file path to your markdown function
             markdown = pdf_to_markdown(file_path)
-            print("this is the markdown", markdown)
 
             # Prepare messages for GPT
             messages = [

@@ -17,7 +17,13 @@ class User(AbstractUser):
         ('F', 'Female'),
         ('O', 'Other'),
     ]
-    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True, null=True)
+    AGENT_CONSERVATION_CHOICES = [
+        ('S', 'Short'),
+        ('M', 'Medium'),
+        ('D', 'Detailed'),
+    ]
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default='S' ,blank=True, null=True)
+    agent_conservation_choice = models.CharField(max_length=1, choices=AGENT_CONSERVATION_CHOICES, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
     terms_and_conditions = models.BooleanField(default=False)
     
