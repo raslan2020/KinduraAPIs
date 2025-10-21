@@ -8,3 +8,4 @@ openai==1.95.0
 python-dotenv==1.0.0
 PyMuPDF==1.26.3
 livekit-api==1.0.3
+psycopg2-binary==2.9.11
